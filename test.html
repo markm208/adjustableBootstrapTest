@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+        <title>Adjustable Bootstrap divs</title>
+        <style>
+            .code {
+                width: 75%;
+                height: 100vh;
+                border: 1px solid red;
+            }
+            .resizer {
+                width: .5%;
+                height: 100vh;
+                border: 1px solid black;
+                cursor: col-resize; /* adjustable cursor */
+            }
+            .comments {
+                width: 24.5%;
+                height: 100vh;
+                border: 1px solid green;
+            }
+        </style>
+    </head>
+    <body>
+
+    <div class="container-liquid">
+        <div class="row">
+            <!-- comments go here -->
+            <div id="comments" class="comments">
+                Comments
+            </div>
+
+            <!-- very small resizer element -->
+            <div id="resizer" class="resizer"></div>
+            
+            <!-- code goes here -->
+            <div id="code" class="code">
+                Code
+            </div>
+        </div>
+    </div>
+    <script>
+        //listen for a mouse down on the resizer
+        document.getElementById('resizer').addEventListener('mousedown', startDrag);
+
+        //global object to hold info about resizing the code and comments  
+        const codeResizeData  = {
+            positionOfStartOfDrag: 0, //the position of the cursor when a drag starts (in pixels from the left side of the screen)
+            startCommentsWidth: 0, //the width of the comments element before a drag
+            startCodeWidth: 0, //the width of the code element before a drag
+            comments: document.getElementById('comments'), //reference to the comments element
+            code: document.getElementById('code') //reference to the code element
+        };
+
+        function startDrag(event) {
+            //get the position of the cursor when the drag starts
+            codeResizeData.positionOfStartOfDrag = event.clientX;
+
+            //store the width of the two divs in pixels before dragging commences
+            codeResizeData.startCommentsWidth = parseInt(document.defaultView.getComputedStyle(codeResizeData.comments).width);
+            codeResizeData.startCodeWidth = parseInt(document.defaultView.getComputedStyle(codeResizeData.code).width);
+
+            //add listeners only for moving and releasing the drag
+            document.documentElement.addEventListener('mousemove', doDrag, false);
+            document.documentElement.addEventListener('mouseup', stopDrag, false);
+        }
+
+        function doDrag(event) {
+            //difference in pixels from the start of the drag until a move 
+            //(positive is a movement to the right, negative is to the left)
+            const movedXInPixels = event.clientX - codeResizeData.positionOfStartOfDrag;
+            
+            //proposed new widths
+            //comments are on the left of the resizer to add to the width
+            const newCommentsWidth = codeResizeData.startCommentsWidth + movedXInPixels;
+            //code is to the right of the resizer so subtract from the width
+            const newCodeWidth = codeResizeData.startCodeWidth - movedXInPixels; 
+
+            //if the comments and code has at least 100 pixels of width
+            if(newCommentsWidth > 100 && newCodeWidth > 100) {
+                //update the widths
+                codeResizeData.comments.style.width = newCommentsWidth.toString() + 'px';
+                codeResizeData.code.style.width = newCodeWidth.toString() + 'px';
+            } //else- too narrow to adjust widths
+        }
+
+        function stopDrag(event) {
+            //remove the listeners for dragging movement
+            document.documentElement.removeEventListener('mousemove', doDrag, false);    
+            document.documentElement.removeEventListener('mouseup', stopDrag, false);
+        }
+
+    </script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    </body>
+</html>
